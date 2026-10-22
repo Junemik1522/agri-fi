@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Investment, InvestmentStatus } from './entities/investment.entity';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
 import {
@@ -17,6 +18,7 @@ import { User } from '../auth/entities/user.entity';
 import { StellarService } from '../stellar/stellar.service';
 import { QueueService } from '../queue/queue.service';
 import { ReferralService } from '../auth/referral.service';
+import { CarbonCalculatorService } from '../carbon-calculator/carbon-calculator.service';
 import {
   normalizePagination,
   PaginatedResult,
@@ -452,6 +454,48 @@ export class InvestmentsService {
     const { page, limit, skip } = normalizePagination(query);
     const [data, total] = await this.investmentRepo.findAndCount({
       where: { investorId },
+      relations: ['investor', 'tradeDeal'],
+      order: { createdAt: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    return toPaginatedResult(data, total, page, limit);
+  }
+
+  async getESGInvestments(
+    query: PaginationQuery = {},
+    ecoCertification?: string,
+    minCarbonFootprint?: number,
+    maxCarbonFootprint?: number,
+  ): Promise<PaginatedResult<Investment>> {
+    const { page, limit, skip } = normalizePagination(query);
+
+    const tradeDealWhere: any = {};
+    if (ecoCertification) {
+      tradeDealWhere.ecoCertification = ecoCertification;
+    }
+
+    const investmentWhere: any = {
+      tradeDeal: tradeDealWhere,
+    };
+
+    if (minCarbonFootprint !== undefined || maxCarbonFootprint !== undefined) {
+      const carbonWhere: any = {};
+      if (minCarbonFootprint !== undefined) {
+        carbonWhere.carbonFootprint = MoreThanOrEqual(minCarbonFootprint);
+      }
+      if (maxCarbonFootprint !== undefined) {
+        carbonWhere.carbonFootprint = LessThanOrEqual(maxCarbonFootprint);
+      }
+      investmentWhere.tradeDeal = {
+        ...tradeDealWhere,
+        ...carbonWhere,
+      };
+    }
+
+    const [data, total] = await this.investmentRepo.findAndCount({
+      where: investmentWhere,
       relations: ['investor', 'tradeDeal'],
       order: { createdAt: 'DESC' },
       skip,

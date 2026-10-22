@@ -226,4 +226,44 @@ export class TradeDeal {
     nullable: true,
   })
   appTraceId: string | null;
+
+  @Column({ name: 'carbon_footprint', type: 'decimal', precision: 36, scale: 2, default: 0 })
+  @ApiProperty({
+    description: 'Total carbon footprint in kg CO2e',
+    example: 150.5,
+    required: false,
+  })
+  carbonFootprint: number;
+
+  @Column({ name: 'transportation_carbon', type: 'decimal', precision: 36, scale: 2, default: 0 })
+  @ApiProperty({
+    description: 'Carbon footprint from transportation in kg CO2e',
+    example: 85.2,
+    required: false,
+  })
+  transportationCarbon: number;
+
+  @Column({ name: 'storage_carbon', type: 'decimal', precision: 36, scale: 2, default: 0 })
+  @ApiProperty({
+    description: 'Carbon footprint from storage in kg CO2e',
+    example: 30.5,
+    required: false,
+  })
+  storageCarbon: number;
+
+  @Column({ name: 'processing_carbon', type: 'decimal', precision: 36, scale: 2, default: 0 })
+  @ApiProperty({
+    description: 'Carbon footprint from processing in kg CO2e',
+    example: 34.8,
+    required: false,
+  })
+  processingCarbon: number;
+
+  @Column({ name: 'eco_certification', type: 'varchar', length: 100, nullable: true })
+  @ApiProperty({
+    description: 'Eco-friendly certification (e.g., Organic, Rainforest Alliance, Fair Trade)',
+    example: 'Organic',
+    required: false,
+  })
+  ecoCertification: string | null;
 }

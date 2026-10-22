@@ -17,7 +17,10 @@ export type BadgeType =
   | 'early_bird'
   | 'long_term'
   | 'impact_farmer'
-  | 'community';
+  | 'community'
+  | 'investor_testimonial'
+  | 'deal_success_story'
+  | 'high_rated_investor';
 
 @Entity('achievements')
 @Unique(['userId', 'badgeType'])

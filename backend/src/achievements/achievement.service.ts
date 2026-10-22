@@ -10,6 +10,8 @@ import { Achievement, BadgeType } from './entities/achievement.entity';
 import { Investment, InvestmentStatus } from '../investments/entities/investment.entity';
 import { TradeDeal } from '../trade-deals/entities/trade-deal.entity';
 import { User } from '../auth/entities/user.entity';
+// Testimonial and DealSuccessStory may not exist yet - keep imports conditional
+// These will be used when the entities are created for the social proof features
 
 export interface AchievementEvent {
   type: 'investment_confirmed' | 'referral_completed' | 'deal_matured';
@@ -112,6 +114,13 @@ export class AchievementService {
         if (badge) newlyAwarded.push(badge);
       }
     }
+
+    /*
+   * 7. Investor Testimonial and 8. High Rated Investor badges are
+   * grantable via the admin API (adminGrantBadge) since they relate
+   * to the separate Testimonial and Community Rating features.
+   * They are not auto-awarded through the event-driven checkAndAward flow.
+   */
 
     return newlyAwarded;
   }
